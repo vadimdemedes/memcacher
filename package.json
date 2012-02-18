@@ -1,0 +1,16 @@
+{
+	"name": "memcacher",
+	"version": "0.1.0",
+	"description": "Adding tags functionality to memcached.",
+	"keywords": ["memcache", "memcached"],
+	"author": "Vadim Demedes <sbioko@gmail.com>",
+	"dependencies": {
+		"memcached": "*",
+		"async": "*"
+	},
+	"devDependencies": {
+		"should": "*"
+	},
+	"main": "index",
+	"engines": { "node": ">= 0.4" }
+}
