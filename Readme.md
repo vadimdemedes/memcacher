@@ -14,7 +14,7 @@ Use it like you've used **memcached** module by 3rd-Eden. Memcacher just adds on
 have a list of posts, and when we delete one post, we don't want it to appear on our list of all posts, right? That's where tags come handy. Check out this example:
 
 
-```
+```coffee-script
 Memcacher = require 'memcacher'
 
 Client = new Memcacher ['127.0.0.1:11211']
