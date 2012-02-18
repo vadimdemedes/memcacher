@@ -1,6 +1,6 @@
 {
 	"name": "memcacher",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Adding tags functionality to memcached.",
 	"keywords": ["memcache", "memcached"],
 	"author": "Vadim Demedes <sbioko@gmail.com>",

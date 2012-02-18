@@ -32,6 +32,13 @@ Client.set 'first-post', 'first title', 2592000, ['first-post-tag'], ->
 					# and you should calculate your list of posts again, excluding deleted ones
 ```
 
+# Chainable methods
+
+```coffee-script
+Client.set('test-key', 'value', 2592000, ['some-tag']).get 'test-key', (err, value) ->
+	value # 'value'
+```
+
 # Tests
 
 Tests made using **mocha**. Run them by doing this:

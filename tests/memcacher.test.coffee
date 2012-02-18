@@ -23,3 +23,9 @@ describe 'Memcacher', ->
 				Client.get 'test-keys', (err, value) ->
 					value.should.equal false
 					do done
+	
+	describe 'testing chainable API', ->
+		it 'should chain methods', (done) ->
+			Client.set('test-key', 'test', 2592000, []).get 'test-key', (err, value) ->
+				value.should.equal 'test'
+				do done

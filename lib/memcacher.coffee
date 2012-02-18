@@ -11,11 +11,13 @@ class Memcacher
 		@client.set key, value, expireIn, ->
 			process.nextTick ->
 				callback no if callback
+		return @
 	
 	get: (key, callback) ->
 		@client.get key, (err, value) ->
 			process.nextTick ->
 				callback err, value if callback
+		return @
 	
 	delByTag: (tag, callback) ->
 		that = @
@@ -30,6 +32,7 @@ class Memcacher
 			, ->
 				process.nextTick ->
 					callback no if callback
+		return @
 	
 	del: (key, callback) ->
 		that = @
@@ -44,6 +47,7 @@ class Memcacher
 				that.client.del key, ->
 					process.nextTick ->
 						callback no if callback
+		return @
 		
 	
 	bindTagToKey: (tag, key, callback) ->
