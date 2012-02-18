@@ -19,7 +19,7 @@ describe 'Memcacher', ->
 	
 	describe 'removing one of the records', ->
 		it 'should remove record and remove "test-keys" record', (done) ->
-			Client.remove 'test-key-first', ->
+			Client.del 'test-key-first', ->
 				Client.get 'test-keys', (err, value) ->
 					value.should.equal false
 					do done

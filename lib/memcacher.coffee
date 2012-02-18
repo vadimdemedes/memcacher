@@ -17,25 +17,30 @@ class Memcacher
 			process.nextTick ->
 				callback err, value if callback
 	
-	del: (key, callback) ->
-		@remove key, callback
+	delByTag: (tag, callback) ->
+		that = @
+		that.client.get "#{ tag }-keys", (err, value) ->
+			return callback no if not value
+			
+			that.client.del "#{ tag }-keys", ->
+			keys = JSON.parse value
+			async.forEach keys, (key, nextKey) ->
+				that.client.del key, ->
+					do nextKey
+			, ->
+				process.nextTick ->
+					callback no if callback
 	
-	remove: (key, callback) ->
+	del: (key, callback) ->
 		that = @
 		@client.get "#{ key }-tags", (err, value) ->
 			return if not value
 			
 			tags = JSON.parse value
 			async.forEach tags, (tag, nextTag) ->
-				that.client.get "#{ tag }-keys", (err, value) ->
-					return do nextTag if not value
-					
-					keys = JSON.parse value
-					for key in keys
-						that.client.del key, ->
-					
-					do nextTag
+				that.delByTag tag, nextTag
 			, ->
+				that.client.del "#{ key }-tags", ->
 				that.client.del key, ->
 					process.nextTick ->
 						callback no if callback
