@@ -1,6 +1,6 @@
 {
 	"name": "memcacher",
-	"version": "0.1.2",
+	"version": "0.2.0",
 	"description": "Adding tags functionality to memcached.",
 	"keywords": ["memcache", "memcached"],
 	"author": "Vadim Demedes <sbioko@gmail.com>",
@@ -12,5 +12,6 @@
 		"should": "*"
 	},
 	"main": "index",
-	"engines": { "node": ">= 0.4" }
+	"engines": { "node": ">= 0.4" },
+	"license": "MIT"
 }

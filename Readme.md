@@ -1,6 +1,6 @@
 # Memcacher
 
-  Adding tags functionality to memcached. Using node-memcached module by 3rd-Eden.
+  Adding tags functionality to memcached without modifying its source. Using node-memcached module by 3rd-Eden.
 
 # Installation
 
@@ -19,9 +19,9 @@ Memcacher = require 'memcacher'
 
 Client = new Memcacher ['127.0.0.1:11211']
 
-Client.set 'first-post', 'first title', 2592000, ['first-post-tag'], ->
-	Client.set 'second-post', 'second title', 2592000, ['second-post-tag'], ->
-		Client.set 'posts', JSON.stringify(['first title', 'second title']), 2592000, ['first-post-tag', 'second-post-tag'], ->
+Client.set key: 'first-post', value: 'first title', expireIn: 2592000, tags: ['first-post-tag'], ->
+	Client.set key: 'second-post', value: 'second title', expireIn: 2592000, tags: ['second-post-tag'], ->
+		Client.set key: 'posts', value: JSON.stringify(['first title', 'second title']), expireIn: 2592000, tags: ['first-post-tag', 'second-post-tag'], ->
 			# all records are saved
 			# now, if you will remove record with key "first-post", all records with tag "first-post-tag" will be removed
 			Client.del 'first-post', ->
@@ -30,12 +30,17 @@ Client.set 'first-post', 'first title', 2592000, ['first-post-tag'], ->
 					# value is not ['first title', 'second title']
 					# it is false
 					# and you should calculate your list of posts again, excluding deleted ones
+			
+			# or, you can remove by tag
+			
+			Client.delByTag 'second-post-tag', ->
+				# record with key "second-post" deleted
 ```
 
 # Chainable methods
 
 ```coffee-script
-Client.set('test-key', 'value', 2592000, ['some-tag']).get 'test-key', (err, value) ->
+Client.set(key: 'test-key', value: 'value', expireIn: 2592000, tags: ['some-tag']).get 'test-key', (err, value) ->
 	value # 'value'
 ```
 
@@ -44,7 +49,7 @@ Client.set('test-key', 'value', 2592000, ['some-tag']).get 'test-key', (err, val
 Tests made using **mocha**. Run them by doing this:
 
 ```
-cd tests && mocha *
+mocha
 ```
 
 # License 

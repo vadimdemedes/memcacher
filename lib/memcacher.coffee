@@ -5,84 +5,90 @@ class Memcacher
 	constructor: (servers = []) ->
 		@client = new memcached servers
 	
-	set: (key, value, expireIn, tags = [], callback) ->
-		for tag in tags
-			@bindTagToKey tag, key
-		@client.set key, value, expireIn, ->
-			process.nextTick ->
-				callback no if callback
-		return @
+	set: (options, callback) ->
+		if options.tags
+			for tag in options.tags
+				@bindTagToKey tag: tag, key: options.key
+		
+		@client.set options.key, options.value, options.expireIn or options.expire_in, ->
+			callback no if callback
+		
+		@
 	
-	get: (key, callback) ->
+	get: (options, callback) ->
+		key = if typeof options is 'object' then options.key else options
+		
 		@client.get key, (err, value) ->
-			process.nextTick ->
-				callback err, value if callback
-		return @
+			callback err, value if callback
+		
+		@
 	
-	delByTag: (tag, callback) ->
+	delByTag: (options, callback) ->
+		tag = if typeof options is 'object' then options.tag else options
+		
 		that = @
-		that.client.get "#{ tag }-keys", (err, value) ->
+		
+		@client.get "#{ tag }-keys", (err, value) ->
 			return callback no if not value
 			
 			that.client.del "#{ tag }-keys", ->
-			keys = JSON.parse value
-			async.forEach keys, (key, nextKey) ->
+			async.forEach JSON.parse(value), (key, nextKey) ->
 				that.client.del key, ->
 					do nextKey
 			, ->
-				process.nextTick ->
-					callback no if callback
-		return @
+				callback no if callback
+		
+		@
 	
-	del: (key, callback) ->
+	del: (options, callback) ->
+		key = if typeof options is 'object' then options.key else options
+		
 		that = @
+		
 		@client.get "#{ key }-tags", (err, value) ->
-			return if not value
+			return callback no if not value
 			
-			tags = JSON.parse value
-			async.forEach tags, (tag, nextTag) ->
+			async.forEach JSON.parse(value), (tag, nextTag) ->
 				that.delByTag tag, nextTag
 			, ->
 				that.client.del "#{ key }-tags", ->
 				that.client.del key, ->
-					process.nextTick ->
-						callback no if callback
-		return @
+					callback no if callback
 		
+		@
 	
-	bindTagToKey: (tag, key, callback) ->
+	bindTagToKey: (options, callback) ->
 		that = @
+		
 		bindKeys = (done) ->
-			that.client.get "#{ tag }-keys", (err, value) ->
+			that.client.get "#{ options.tag }-keys", (err, value) ->
 				if not value # keys, related to that tag, do not exist
-					that.client.set "#{ tag }-keys", JSON.stringify([key]), 2592000, ->
-						process.nextTick ->
-							do done
+					that.client.set "#{ options.tag }-keys", JSON.stringify([options.key]), 2592000, ->
+						do done
 				else
 					keys = JSON.parse value
-					keys.push key
-					that.client.set "#{ tag }-keys", JSON.stringify(keys), 2592000, ->
-						process.nextTick ->
-							do done
+					keys.push options.key
+					that.client.set "#{ options.tag }-keys", JSON.stringify(keys), 2592000, ->
+						do done
 		
 		bindTags = (done) ->
-			that.client.get "#{ key }-tags", (err, value) ->
+			that.client.get "#{ options.key }-tags", (err, value) ->
 				if not value # tags, related to that key, do not exist
-					that.client.set "#{ key }-tags", JSON.stringify([tag]), 2592000, ->
-						process.nextTick ->
-							do done
+					that.client.set "#{ options.key }-tags", JSON.stringify([options.tag]), 2592000, ->
+						do done
 				else
 					tags = JSON.parse value
-					tags.push tag
-					that.client.set "#{ key }-tags", JSON.stringify(tags), 2592000, ->
-						process.nextTick ->
-							do done
+					tags.push options.tag
+					that.client.set "#{ options.key }-tags", JSON.stringify(tags), 2592000, ->
+						do done
 		
 		async.parallel [bindKeys, bindTags], ->
-			process.nextTick ->
-				callback no if callback
+			callback no if callback
 	
 	close: ->
 		do @client.end
+	
+	end: ->
+		do @close
 
 module.exports = Memcacher
